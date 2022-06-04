@@ -1,4 +1,4 @@
-defmodule MixProject do
+defmodule StructuredLogger.MixProject do
   use Mix.Project
 
   def project do
