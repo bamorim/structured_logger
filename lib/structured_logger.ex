@@ -5,7 +5,7 @@ defmodule StructuredLogger do
 
   alias StructuredLogger.ValueMapper
 
-  @config Application.get_env(:structured_logger, :metadata, [])
+  @config Application.compile_env(:structured_logger, :metadata, [])
 
   @default_exclude [
     :erl_level,

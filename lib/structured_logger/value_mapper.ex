@@ -4,7 +4,15 @@ defprotocol StructuredLogger.ValueMapper do
   we create a flat structure while still keeping important information around.
 
   This Protocol is responsible for the mapping.
+  """
 
+  @type primitive() :: atom() | binary() | integer() | pid() | reference()
+  @type complex() ::
+          %{required(atom() | binary()) => primitive()} | [{atom() | binary(), primitive()}]
+
+  @fallback_to_any true
+  @spec map(term()) :: {:ok, primitive() | complex()} | :ignore
+  @doc """
   For each value it can either return
 
   - `{:ok, term()}`
@@ -42,17 +50,11 @@ defprotocol StructuredLogger.ValueMapper do
   Where `ExceptionType` is the module and `"Exception Message"` is the
   `Exception.message/1` result.
   """
-
-  @type primitive() :: atom() | binary() | integer() | pid() | reference()
-  @type complex() ::
-          %{required(atom() | binary()) => primitive()} | [{atom() | binary(), primitive()}]
-
-  @fallback_to_any true
-  @spec map(term()) :: {:ok, primitive() | complex()} | :ignore
   def map(value)
 end
 
 defimpl StructuredLogger.ValueMapper, for: Any do
+  @moduledoc false
   @simple_values [Date, DateTime, NaiveDateTime, Time, URI]
 
   def map(%type{__exception__: true} = exception) do
