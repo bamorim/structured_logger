@@ -6,16 +6,20 @@ defmodule StructuredLoggerTest do
   describe "format/4" do
     test "formats all metadata provided (except configured excluded ones)" do
       assert "level=debug msg=message time=12345 custom_key=custom_data\n" ==
-               StructuredLogger.format(:debug, "message", {}, time: 12_345, custom_key: "custom_data")
+               StructuredLogger.format(:debug, "message", {},
+                 time: 12_345,
+                 custom_key: "custom_data"
+               )
     end
 
     test "metadata excluded in the config is not present in the logfmt log" do
       assert "level=info msg=message\n" ==
-               StructuredLogger.format(:info, "message", {}, [excluded_key: :data])
+               StructuredLogger.format(:info, "message", {}, excluded_key: :data)
     end
 
     test "logs stack traces" do
-      log_line = StructuredLogger.format(:error, "exception", {}, exception: %MatchError{term: :a})
+      log_line =
+        StructuredLogger.format(:error, "exception", {}, exception: %MatchError{term: :a})
 
       assert %{
                "level" => "error",
@@ -44,13 +48,20 @@ defmodule StructuredLoggerTest do
     test "filter keys that are suspiciously secrets by default" do
       for key <- @suspicious_keys do
         r = Enum.random(10..99)
-        refute StructuredLogger.format(:error, "message", {}, "#{r}#{key}#{r}": 1) =~ to_string(key)
+
+        refute StructuredLogger.format(:error, "message", {}, "#{r}#{key}#{r}": 1) =~
+                 to_string(key)
       end
     end
 
     test "metadata excluded using regex in the config is removed" do
       assert "level=info msg=message keep_my_key=1\n" ==
-        StructuredLogger.format(:info, "message", {}, [excluded_key: :data, keep_my_key: 1, my_key: 2, my_keys: 1])
+               StructuredLogger.format(:info, "message", {},
+                 excluded_key: :data,
+                 keep_my_key: 1,
+                 my_key: 2,
+                 my_keys: 1
+               )
     end
   end
 end

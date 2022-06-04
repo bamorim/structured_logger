@@ -7,15 +7,31 @@ defmodule StructuredLogger do
 
   @config Application.get_env(:structured_logger, :metadata, [])
 
-
-  @default_exclude [:ansi_color, ~r/secret/, ~r/password/, ~r/token/, ~r/cookie/, ~r/crypt/]
+  @default_exclude [
+    :erl_level,
+    :application,
+    :file,
+    :function,
+    :gl,
+    :line,
+    :mfa,
+    :module,
+    :pid,
+    ~r/secret/,
+    ~r/password/,
+    ~r/token/,
+    ~r/cookie/,
+    ~r/crypt/
+  ]
 
   @exclude_clauses (case Keyword.fetch(@config, :only_exclude) do
-    {:ok, exclude} -> exclude
-    _ ->
-      also_exclude = Keyword.get(@config, :also_exclude, [])
-      also_exclude ++ @default_exclude
-  end)
+                      {:ok, exclude} ->
+                        exclude
+
+                      _ ->
+                        also_exclude = Keyword.get(@config, :also_exclude, [])
+                        also_exclude ++ @default_exclude
+                    end)
 
   @simple_exclude Enum.filter(@exclude_clauses, &is_atom/1)
   @regex_exclude Enum.filter(@exclude_clauses, &match?(%Regex{}, &1))
@@ -79,8 +95,10 @@ defmodule StructuredLogger do
         for {subkey, value} <- complex do
           {"#{key}.#{subkey}", value}
         end
+
       {:ok, primitive} ->
         [{key, primitive}]
+
       :ignore ->
         []
     end

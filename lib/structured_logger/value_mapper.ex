@@ -44,7 +44,8 @@ defprotocol StructuredLogger.ValueMapper do
   """
 
   @type primitive() :: atom() | binary() | integer() | pid() | reference()
-  @type complex() :: %{required(atom() | binary()) => primitive()} | [{atom() | binary(), primitive()}]
+  @type complex() ::
+          %{required(atom() | binary()) => primitive()} | [{atom() | binary(), primitive()}]
 
   @fallback_to_any true
   @spec map(term()) :: {:ok, primitive() | complex()} | :ignore
@@ -55,13 +56,16 @@ defimpl StructuredLogger.ValueMapper, for: Any do
   @simple_values [Date, DateTime, NaiveDateTime, Time, URI]
 
   def map(%type{__exception__: true} = exception) do
-    {:ok, %{
-      type: type,
-      message: Exception.message(exception)
-    }}
+    {:ok,
+     %{
+       type: type,
+       message: Exception.message(exception)
+     }}
   end
 
-  def map(value) when is_atom(value) or is_binary(value) or is_number(value) or is_pid(value) or is_reference(value) do
+  def map(value)
+      when is_atom(value) or is_binary(value) or is_number(value) or is_pid(value) or
+             is_reference(value) do
     {:ok, value}
   end
 
