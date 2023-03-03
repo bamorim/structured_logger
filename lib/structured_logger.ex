@@ -91,16 +91,29 @@ defmodule StructuredLogger do
 
   defp transform_value({key, value}) do
     case ValueMapper.map(value) do
-      {:ok, complex} when is_map(complex) or is_list(complex) ->
-        for {subkey, value} <- complex do
-          {"#{key}.#{subkey}", value}
-        end
-
-      {:ok, primitive} ->
-        [{key, primitive}]
+      {:ok, mapped} ->
+        value_to_metadata(key, mapped)
 
       :ignore ->
         []
     end
   end
+
+  defp value_to_metadata(key, %_struct{} = value) do
+    case Logfmt.ValueEncoder.impl_for(value) do
+      nil ->
+        value_to_metadata(key, Map.from_struct(value))
+
+      _impl ->
+        [{key, value}]
+    end
+  end
+
+  defp value_to_metadata(key, complex) when is_map(complex) or is_list(complex) do
+    for {subkey, value} <- complex do
+      {"#{key}.#{subkey}", value}
+    end
+  end
+
+  defp value_to_metadata(key, value), do: [{key, value}]
 end

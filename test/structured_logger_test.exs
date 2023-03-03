@@ -1,8 +1,6 @@
 defmodule StructuredLoggerTest do
   use ExUnit.Case
 
-  alias StructuredLogger
-
   describe "format/4" do
     test "formats all metadata provided (except configured excluded ones)" do
       assert "level=debug msg=message time=12345 custom_key=custom_data\n" ==
@@ -61,6 +59,20 @@ defmodule StructuredLoggerTest do
                  keep_my_key: 1,
                  my_key: 2,
                  my_keys: 1
+               )
+    end
+
+    test "don't flatten struct that implements logfmt protocol" do
+      assert "level=info msg=msg mystruct=hello/world\n" ==
+               StructuredLogger.format(:info, "msg", {},
+                 mystruct: %StructWithLogfmt{foo: "hello", bar: "world"}
+               )
+    end
+
+    test "flatten struct that don't implement logfmt protocol" do
+      assert "level=info msg=msg mystruct.foo=hello\n" ==
+               StructuredLogger.format(:info, "msg", {},
+                 mystruct: %StructWithoutLogfmt{foo: "hello"}
                )
     end
   end
