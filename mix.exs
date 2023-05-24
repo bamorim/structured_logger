@@ -1,14 +1,18 @@
 defmodule StructuredLogger.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/bamorim/structured_logger"
+
   def project do
     [
       app: :structured_logger,
-      version: "0.1.0",
+      version: "0.0.1",
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      package: package(),
+      description: "Logger formatter focused on structured logs",
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
         plt_add_apps: [:mix, :credo]
@@ -21,8 +25,8 @@ defmodule StructuredLogger.MixProject do
         "coveralls.json": :test
       ],
       name: "StructuredLogger",
-      source_url: "https://github.com/bamorim/structured_logger",
-      homepage_url: "https://github.com/bamorim/structured_logger",
+      source_url: @source_url,
+      homepage_url: @source_url,
       docs: [
         # The main page in the docs
         main: "StructuredLogger",
@@ -53,6 +57,16 @@ defmodule StructuredLogger.MixProject do
       {:ex_doc, "~> 0.28", only: :dev, runtime: false},
       {:mock, "~> 0.3.7", only: [:dev, :test]},
       {:excoveralls, "~> 0.14", only: :test}
+    ]
+  end
+
+  defp package do
+    [
+      name: "structured_logger",
+      # These are the default files included in the package
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => @source_url}
     ]
   end
 end
